@@ -165,6 +165,30 @@ Filters like paging is a middleware that can be applied on `IQueryable`, like me
 
    1. `dotnet add GraphQL package HotChocolate.Data --version 11.0.0-preview.148`
 
+1. Before you can start using filters and sorting, like Relay support, you need to initialise these utilities when you start the GraphQL server. Open `Startup.cs` and update it to add sorting and filtering:
+
+```csharp
+services
+    .AddGraphQLServer()
+    .AddQueryType(d => d.Name("Query"))
+        .AddType<SessionQueries>()
+        .AddTypeExtension<SpeakerQueries>()
+        .AddType<TrackQueries>()
+    .AddMutationType(d => d.Name("Mutation"))
+        .AddTypeExtension<SessionMutations>()
+        .AddTypeExtension<SpeakerMutations>()
+        .AddTypeExtension<TrackMutations>()
+    .AddType<AttendeeType>()
+    .AddType<SessionType>()
+    .AddType<SpeakerType>()
+    .AddType<TrackType>()
+    .EnableRelaySupport()
+    .AddFiltering()
+    .AddSorting()
+    .AddDataLoader<SpeakerByIdDataLoader>()
+    .AddDataLoader<SessionByIdDataLoader>();
+```
+
 1. Head over to the `SessionQueries.cs` which is located in the `Sessions` directory.
 
 1. Replace the `GetSessions` resolver with the following code:
@@ -187,7 +211,7 @@ Filters like paging is a middleware that can be applied on `IQueryable`, like me
    using ConferencePlanner.GraphQL.Data;
    using HotChocolate.Data.Filters;
 
-   namespace ConferencePlanner.GraphQL.Types
+   namespace ConferencePlanner.GraphQL.Sessions
    {
       public class SessionFilterInputType : FilterInputType<Session>
       {
